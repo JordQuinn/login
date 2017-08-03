@@ -30,6 +30,10 @@ function isLoggedIn(req, res, next) {
 //render index page
 app.get("/", isLoggedIn, function(req, res, next){
   //let name = req.session.loginData.name;
+  if (!req.session.views) {
+      req.session.views = 0
+  }
+  req.session.views += 1
   res.render("index", req.session)
 //if I add .views to see how many views I have, I can no longer render user name in index
 })
@@ -49,23 +53,20 @@ app.post('/login/add', function(req, res, next){
   console.log(resultVar)
 
   //if name matches, check password and if that matches, send to root
-  if(resultVar > -1){
+  if(resultVar > -1){ // user check
     if(req.body.password == users[resultVar].password){
       req.session.isLoggedIn = true
       req.session.name = users[resultVar].name
       console.log(users[resultVar].name)
       res.redirect("/")
+    } else {
+      res.redirect("/login")
     }
     //res.send("bad password")-this works
-
-    res.redirect('/login')
-
-  }
-  else{
+  } else {
   //  res.send("bad user name")-this works
-  res.redirect('/login')
+    res.redirect('/login')
   }
-
 })
 //this doesn't work
 // app.use(function(req,res,next){
@@ -73,7 +74,7 @@ app.post('/login/add', function(req, res, next){
 //     req.session.views += 1
 //   }else{req.session.views = 1
 //   }
-})
+
 
 app.listen(3000, function(){
   console.log("App running on port 3000")
